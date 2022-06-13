@@ -113,6 +113,8 @@ class Ui_MainWindow(object):
 
         self.artist.setText(self.songs[self.selected]["artist"])
 
+        self.progress.setMaximum(self.songs[self.selected]["duration"])
+
         self.back.setPixmap(QtGui.QPixmap(glob.glob("data/music/"+str(self.songs[self.selected]["song_number"]) + "_thumbnail*")[0]))
 
 
