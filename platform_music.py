@@ -61,6 +61,16 @@ class Ui_MainWindow(object):
         self.progress = QtWidgets.QSlider(widgets_1)
         self.progress.setGeometry(QtCore.QRect(300, 440, 150, 40))
 
+        canciones_secc_1 = QtWidgets.QPushButton(widgets_1)
+        canciones_secc_1.setGeometry(QtCore.QRect(300, 640, 150, 40))
+        canciones_secc_1.setText("random")
+        canciones_secc_1.clicked.connect(self.shuffle)
+
+        canciones_secc_1 = QtWidgets.QPushButton(widgets_1)
+        canciones_secc_1.setGeometry(QtCore.QRect(500, 40, 150, 40))
+        canciones_secc_1.setText("repeat")
+        canciones_secc_1.clicked.connect(self.loop)
+
         self.progress.setOrientation(1)
         self.progress.setMaximum(60)
         self.progress.setMinimum(0)
@@ -116,6 +126,13 @@ class Ui_MainWindow(object):
         self.progress.setMaximum(self.songs[self.selected]["duration"])
 
         self.back.setPixmap(QtGui.QPixmap(glob.glob("data/music/"+str(self.songs[self.selected]["song_number"]) + "_thumbnail*")[0]))
+
+    def loop(self):
+        print("loop active")
+        print("loop inactive")
+
+    def shuffle(self):
+        print("shuffled")
 
 
 
