@@ -5,7 +5,7 @@ import datetime
 
 def insert_json(data_song):
     data = json.load(open("database.json", "r"))
-    lon = len(data)
+    lon = 1
 
     timestamp = data_song.get('upload_date')
     if timestamp == None:
