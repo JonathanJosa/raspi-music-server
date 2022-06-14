@@ -68,6 +68,7 @@ def showCPU(message, cmd):
 def emergencyClose(message, cmd):
     chat_dest = message['chat']['id']
     if users.get(chat_dest) != None:
+        bot.send_message(chat_dest, "Goodnight!")
         bot.send_message(chat_dest, os.popen("shutdown -r").read())
     else:
         bot.send_message(chat_dest, "Please register first")

@@ -1,16 +1,30 @@
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import Qt
 import json
 import glob
+
+class TableModel(QtCore.QAbstractTableModel):
+    def __init__(self, data):
+        super(TableModel, self).__init__()
+        self._data = data
+
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            return self._data[index.row()][index.column()]
+
+    def rowCount(self, index):
+        return len(self._data)
+
+    def columnCount(self, index):
+        return len(self._data[0])
 
 class Ui_MainWindow(object):
 
     def __init__(self):
 
         self.controlPP = False
-        self.songs = json.load(open("database.json", "r"))["songs"]
-        self.sizeSongs = len(self.songs)
-        self.selected = 0
+        self.refreshDataSheet()
 
         app = QtWidgets.QApplication(sys.argv)
         self.MainWindow = QtWidgets.QMainWindow()
@@ -78,8 +92,6 @@ class Ui_MainWindow(object):
 
         self.MainWindow.setCentralWidget(widgets_1)
 
-
-
     def window_2(self):
         widgets_2 = QtWidgets.QWidget(self.MainWindow)
 
@@ -87,14 +99,40 @@ class Ui_MainWindow(object):
         canciones_secc_2.setGeometry(QtCore.QRect(225, 360, 150, 32))
         canciones_secc_2.setText("reproductor")
         canciones_secc_2.clicked.connect(self.window_1)
-        canciones_secc_2.setStyleSheet("background-color: rgba(193, 39, 39, 0);")
 
+        #box = QtWidgets.QTextBrowser(widgets_2)
+        #box.setGeometry(QtCore.QRect(550, 60, 450, 630))
 
-        box = QtWidgets.QTextBrowser(widgets_2)
-        box.setGeometry(QtCore.QRect(550, 60, 450, 630))
+        data = []
+
+        for song in self.songs:
+
+            title = song["song"]
+            if title == "Unknow":
+                title = song["title"]
+                
+            time = '{0}:{1}'.format(song["duration"]//60, (str(song["duration"]%60-10)).zfill(2))
+
+            data.append([
+                title,
+                song["artist"],
+                song["album"],
+                song["date"]["year"],
+                time
+            ])
+
+        self.model = TableModel(data)
+
+        self.table = QtWidgets.QTableView(widgets_2)
+        self.table.setGeometry(QtCore.QRect(500, 60, 650, 630))
+        self.table.setModel(self.model)
 
         self.MainWindow.setCentralWidget(widgets_2)
 
+    def refreshDataSheet(self):
+        self.songs = json.load(open("database.json", "r"))["songs"]
+        self.sizeSongs = len(self.songs)
+        self.selected = 0
 
     def nextSong(self):
         print("next")
