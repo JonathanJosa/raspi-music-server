@@ -2,6 +2,8 @@ import youtube_dl
 import requests
 import json
 import datetime
+import multitasking
+import signal
 
 def insert_json(data_song):
     data = json.load(open("database.json", "r"))
@@ -54,8 +56,7 @@ def download_song(url_video, id):
         'format': 'bestaudio/best',
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192'
+            'preferredcodec': 'mp3'
         }],
         'postprocessor_args': [
             '-ar', '16000'
@@ -68,6 +69,15 @@ def download_song(url_video, id):
         yield("Pirateando cancion")
         ydl.download([url_video])
     yield("Cancion pirateada")
+
+@multitasking.task
+def directDownload(link):
+    video_info = youtube_dl.YoutubeDL({'quiet': True}).extract_info(
+        url = link,
+        download = False
+    )
+    for i in download_song(video_info['webpage_url'], insert_json(video_info)):
+        pass
 
 def busqueda(search, keep=False):
     res = requests.get("https://www.youtube.com/results?search_query="+search.replace(" ", "+"))
@@ -97,5 +107,12 @@ def busqueda(search, keep=False):
 
 
 if __name__ == "__main__":
-    for msg in busqueda(input("Busqueda: "), True):
-        print(msg)
+    signal.signal(signal.SIGINT, multitasking.killall)
+    if input() == "":
+        for msg in busqueda(input("Busqueda: "), True):
+            print(msg)
+    else:
+        link = input("song: ")
+        while link != "exit":
+            directDownload(link)
+            link = input("song: ")

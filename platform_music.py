@@ -76,7 +76,7 @@ class Ui_MainWindow(object):
         self.loopSong = False
         self.refreshDataSheet()
         self.playerMaster = AudioPlayer("data/music/1.mp3")
-        #self.keyboardControl()
+        self.keyboardControl()
 
         self.timestampSong = 0
 
@@ -201,13 +201,13 @@ class Ui_MainWindow(object):
 
     def keybordInstruction(self, ins):
         ({
-                        "A" : lambda _: print("A"),
-                        "B" : lambda _: print("B"),
-                        "C" : lambda _: print("C"),
+                        "A" : lambda _: self.playPause(),
+                        "B" : lambda _: self.nextSong(),
+                        "C" : lambda _: self.prevSong(),
                         "D" : lambda _: print("D"),
                         "#" : lambda _: print("#"),
                         "*" : lambda _: print("*")
-        })[x](True)
+        })[ins](True)
 
     def keybordSelectSong(self, num):
         num -= 1
