@@ -1,25 +1,29 @@
-#!/usr/bin/env python3
-"""PyBluez simple example sdp-browse.py
-Displays services being advertised on a specified bluetooth device.
-Author: Albert Huang <albert@csail.mit.edu>
-$Id: sdp-browse.py 393 2006-02-24 20:30:15Z albert $
-"""
-
-import sys
-
 import bluetooth
 
-nearby_devices = bluetooth.discover_devices(lookup_names=True)
-if len(nearby_devices) > 0:
-    print("Found %d devices!" % len(nearby_devices))
-else:
-    print("No devices found! Please check your Bluetooth device and restart the demo!")
-    exit(0)
+def scan():
 
-i = 0 # Just an incrementer for labeling the list entries
-# Print out a list of all the discovered Bluetooth Devices
-for addr, name in nearby_devices:
-    print("%s. %s - %s" % (i, addr, name))
-    i =+ 1
+    print("Scanning for bluetooth devices:")
 
-input("Salida....")
+    devices = bluetooth.discover_devices(lookup_names = True, lookup_class = True)
+
+    number_of_devices = len(devices)
+
+    print(number_of_devices,"devices found")
+
+    for addr, name, device_class in devices:
+
+        print("\n")
+
+        print("Device:")
+
+        print("Device Name: %s" % (name))
+
+        print("Device MAC Address: %s" % (addr))
+
+        print("Device Class: %s" % (device_class))
+
+        print("\n")
+
+    return
+
+scan()

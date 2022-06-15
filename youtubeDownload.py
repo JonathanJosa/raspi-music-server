@@ -49,19 +49,30 @@ def download_song(url_video, id):
 
     options = {
         'format': 'bestaudio/best',
-        'keepvideo': False,
         'outtmpl': f"data/music/{id}.mp3",
-        'quiet': True
+        'quiet': True,
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192'
+        }],
+        'postprocessor_args': [
+            '-ar', '16000'
+        ],
+        'prefer_ffmpeg': True,
+        'keepvideo': True
     }
-    with youtube_dl.YoutubeDL(options) as ydl:
-        yield("Downloading Song")
-        ydl.download([url_video])
 
+    with youtube_dl.YoutubeDL(options) as ydl:
+        yield("Pirateando cancion")
+        ydl.download([url_video])
+    yield("Cancion pirateada")
 
 def busqueda(search, keep=False):
     res = requests.get("https://www.youtube.com/results?search_query="+search.replace(" ", "+"))
     extraction = res.text
-    while(keep):
+    while(True):
         fs = extraction.find("/watch?v=")
         query = extraction[fs: fs+(extraction[fs: fs+40]).find('"')]
         video_info = youtube_dl.YoutubeDL({'quiet': True}).extract_info(
@@ -78,6 +89,8 @@ def busqueda(search, keep=False):
                 break
             else:
                 extraction = extraction[fs+40::]
+        else:
+            break
 
     for msg in download_song(video_info['webpage_url'], insert_json(video_info)):
         yield msg
