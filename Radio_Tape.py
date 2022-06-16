@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import json, glob, time, random, sys
+import json, glob, time, random, sys, signal, multitasking
 from audioplayer import AudioPlayer
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
@@ -18,6 +18,7 @@ class Ui_MainWindow(object):
         self.downloadingSong = True
 
         self.timestampSong = 0
+
 
         self.timerSong = QtCore.QTimer()
         self.timerSong.setInterval(1000)
@@ -380,6 +381,16 @@ class Ui_MainWindow(object):
         self.thread.finished.connect(self.refreshDataSheet)
         self.thread.finished.connect(self.endDownload)
 
+    def oledShow(self):
+        signal.signal(signal.SIGINT, multitasking.killall)
+        try:
+            self.disp.killer = True
+        except:
+            pass
+        self.disp = taskQCorePython.oledControl()
+        self.disp.song(self.songs[self.selected])
+
+
     def endDownload(self):
         try:
             self.downloadingSong = True
@@ -415,6 +426,9 @@ class Ui_MainWindow(object):
     def nextSong(self):
         self.selected = (self.selected + 1) % self.sizeSongs
         self.playSong()
+        self.thread_oled.quit()
+        self.disp.deleteLater()
+        self.thread_oled.deleteLater()
 
     def prevSong(self):
         self.selected = (self.selected or (self.sizeSongs)) -1
@@ -449,6 +463,7 @@ class Ui_MainWindow(object):
         self.progress.setMaximum(self.songs[self.selected]["duration"])
         self.back.setPixmap(QtGui.QPixmap(glob.glob("data/music/"+str(self.songs[self.selected]["song_number"]) + "_thumbnail*")[0]))
         self.time2.setText(str(self.songs[self.selected]["duration"]//60) + ":" + (str(self.songs[self.selected]["duration"]%60)).zfill(2))
+        self.oledShow()
 
     def loop(self):
         self.loopSong = not self.loopSong
