@@ -245,7 +245,6 @@ class Ui_MainWindow(object):
 
         self.thread.start()
         self.thread.finished.connect(self.refreshDataSheet)
-        self.thread.finished.connect(lambda: self.label_res.setText("Download songs"))
 
     def refreshDataSheet(self):
         self.songs = json.load(open("database.json", "r"))["songs"]
@@ -254,7 +253,10 @@ class Ui_MainWindow(object):
 
     def setValueTime(self):
         self.timestampSong += 1
-        self.progress.setValue(self.timestampSong)
+        try:
+            self.progress.setValue(self.timestampSong)
+        except:
+            pass
         if self.timestampSong >= self.maxSongDuration:
             self.endSong()
 
@@ -281,7 +283,6 @@ class Ui_MainWindow(object):
         if self.controlPP:
             self.playerMaster.pause()
             self.timerSong.stop()
-            self.endSongTimer.stop()
         else:
             self.playerMaster.resume()
             self.timerSong.start()
