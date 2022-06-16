@@ -108,7 +108,7 @@ def busqueda(search, keep=False):
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, multitasking.killall)
-    if input() == "":
+    if input("Verbose? ") == "":
         for msg in busqueda(input("Busqueda: "), True):
             print(msg)
     else:

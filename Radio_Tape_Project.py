@@ -3,12 +3,17 @@ from telebot import TeleBot
 import json
 import sys
 import os
+import youtubeDownload as yt_dl
+import multitasking
+import Radio_Tape as rt
+from PyQt5 import QtWidgets
 
 bot = TeleBot(__name__)
 users = {}
 banned = {}
 join = {}
 
+@multitasking.task
 def start_bot():
     bot.config['api_key'] = "5159291527:AAECemDgi7fT9VkN2YA3opmTS0GbRnCTZSA"
     bot.poll(debug=True)
@@ -50,10 +55,62 @@ def passwordNewUser(message, cmd):
 def showCPU(message, cmd):
     chat_dest = message['chat']['id']
     if users.get(chat_dest) != None:
-        list_songs = ""
-        for song in (json.load(open("database.json", "r"))["songs"]).keys():
-            list_songs += song + "\n"
+        data = (json.load(open("database.json", "r"))["songs"])
+        lon = len(data)+1
+        list_songs = "List of #" + str(lon) + " songs:\n"
+
+        for pos in range(lon):
+            name = data[pos]["song"]
+            if name == "Unknow":
+                name = data[pos]["title"]
+            list_songs += "  " + str(pos) + " - " + name + "\n"
         bot.send_message(chat_dest, list_songs)
+    else:
+        bot.send_message(chat_dest, "Please register first")
+
+@bot.route('/download ?(.*)')
+def showCPU(message, cmd):
+    chat_dest = message['chat']['id']
+    if users.get(chat_dest) != None:
+        for msg in yt_dl.busqueda(message['text'][10:]):
+            bot.send_message(chat_dest, msg)
+        window.telegramInterpreter("Down1")
+    else:
+        bot.send_message(chat_dest, "Please register first")
+
+@bot.route('/next ?(.*)')
+def showCPU(message, cmd):
+    chat_dest = message['chat']['id']
+    if users.get(chat_dest) != None:
+        bot.send_message(chat_dest, "Next Song")
+        window.telegramInterpreter("Next1")
+    else:
+        bot.send_message(chat_dest, "Please register first")
+
+@bot.route('/prev ?(.*)')
+def showCPU(message, cmd):
+    chat_dest = message['chat']['id']
+    if users.get(chat_dest) != None:
+        bot.send_message(chat_dest, "Previous Song")
+        window.telegramInterpreter("Prev1")
+    else:
+        bot.send_message(chat_dest, "Please register first")
+
+@bot.route('/playPause ?(.*)')
+def showCPU(message, cmd):
+    chat_dest = message['chat']['id']
+    if users.get(chat_dest) != None:
+        bot.send_message(chat_dest, "Previous Song")
+        window.telegramInterpreter("PlPa1")
+    else:
+        bot.send_message(chat_dest, "Please register first")
+
+@bot.route('/select ?(.*)')
+def showCPU(message, cmd):
+    chat_dest = message['chat']['id']
+    if users.get(chat_dest) != None:
+        bot.send_message(chat_dest, "Previous Song")
+        window.telegramInterpreter("Sele"+message['text'][8:])
     else:
         bot.send_message(chat_dest, "Please register first")
 
@@ -108,4 +165,6 @@ def parrot(message):
         bot.send_message(chat_dest, "Please register first")
 
 
+window = rt.Ui_MainWindow()
 start_bot()
+window.init()

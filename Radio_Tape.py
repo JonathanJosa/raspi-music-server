@@ -9,7 +9,7 @@ import modelsPyQt5
 
 class Ui_MainWindow(object):
 
-    def __init__(self):
+    def init(self):
         self.controlPP = False
         self.loopSong = False
         self.refreshDataSheet()
@@ -371,7 +371,7 @@ class Ui_MainWindow(object):
         self.Downloader = taskQCorePython.Downloader()
         self.Downloader.set(self.download_in.text())
         self.Downloader.moveToThread(self.thread)
-        
+
         self.download_in.setText("")
 
         self.Downloader.finished.connect(self.thread.quit)
@@ -384,8 +384,16 @@ class Ui_MainWindow(object):
         self.thread.finished.connect(self.refreshDataSheet)
         self.thread.finished.connect(self.endDownload)
 
+    def telegramInterpreter(self, opt):
+        ({
+            "Next": lambda _ : self.nextSong(),
+            "Prev": lambda _ : self.prevSong(),
+            "PlPa": lambda _ : self.playPause(),
+            "PlPa": lambda _ : self.playPause(),
+            "Sele": lambda n : self.keybordSelectSong(n)
+        }[opt[0:4]])(int(opt[4:]))
+
     def oledShow(self):
-        signal.signal(signal.SIGINT, multitasking.killall)
         try:
             self.disp.killer = True
         except:
@@ -460,11 +468,11 @@ class Ui_MainWindow(object):
 
         self.artist.setText(self.songs[self.selected]["artist"])
         self.progress.setMaximum(self.songs[self.selected]["duration"])
-        
+
         imagen = QtGui.QPixmap(glob.glob("data/music/"+str(self.songs[self.selected]["song_number"]) + "_thumbnail*")[0])
         imag_red = imagen.scaled(self.widthScaled, self.widthScaled)
         self.back.setPixmap(imag_red)
-        
+
         self.time2.setText(str(self.songs[self.selected]["duration"]//60) + ":" + (str(self.songs[self.selected]["duration"]%60)).zfill(2))
         self.oledShow()
 
@@ -508,8 +516,3 @@ class Ui_MainWindow(object):
             self.table.setModel(self.model)
         except:
             pass
-
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    Ui_MainWindow()
-    sys.exit(app.exec_())
