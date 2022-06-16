@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Radio_Tape
+Comment=Reproductor mp3
+Icon=/home/jojo/cod/python/raspi-music-server/data/casette.png
+Exec=python3 home/jojo/cod/python/raspi-music-server/Radio_Tape_Project.py
+Type=Application
+Encoding=UTF-8
+Terminal=false
