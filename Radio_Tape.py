@@ -1,73 +1,11 @@
 #!/usr/bin/env python3
-import sys
+import json, glob, time, random, sys
+from audioplayer import AudioPlayer
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
-from audioplayer import AudioPlayer
-import json
-import glob
-import time
-import random
-import serial
-import youtubeDownload as yt_dl
 
-class Downloader(QObject):
-
-    finished = pyqtSignal()
-    progress = pyqtSignal(str)
-
-    def set(self, songName):
-        self.song = songName
-
-    def dwn(self):
-        for msg in yt_dl.busqueda(self.song):
-            self.progress.emit(msg)
-        self.finished.emit()
-
-class Keyboard(QObject):
-
-    finished = pyqtSignal()
-    instruction = pyqtSignal(str)
-    number = pyqtSignal(int)
-    functions = {
-                    "A" : lambda _: print("A"),
-                    "B" : lambda _: print("B"),
-                    "C" : lambda _: print("C"),
-                    "D" : lambda _: print("D"),
-                    "#" : lambda _: print("#"),
-                    "*" : lambda _: print("*")
-                }
-
-    def readData(self):
-        con = serial.Serial(port='/dev/ttyACM0', baudrate = 19200, timeout=1)
-        data = ""
-        num = -1
-        while 1:
-            x = con.read().decode('utf-8')
-            if self.functions.get(x) != None:
-                self.instruction.emit(x)
-                data = ""
-            elif x != "":
-                data += x
-            elif data != "":
-                self.number.emit(int(data))
-                data = ""
-
-        self.finished.emit()
-
-class TableModel(QtCore.QAbstractTableModel):
-    def __init__(self, data):
-        super(TableModel, self).__init__()
-        self._data = data
-
-    def data(self, index, role):
-        if role == Qt.DisplayRole:
-            return self._data[index.row()][index.column()]
-
-    def rowCount(self, index):
-        return len(self._data)
-
-    def columnCount(self, index):
-        return len(self._data[0])
+import taskQCorePython
+import modelsPyQt5
 
 class Ui_MainWindow(object):
 
@@ -77,6 +15,7 @@ class Ui_MainWindow(object):
         self.refreshDataSheet()
         self.playerMaster = AudioPlayer("data/music/1.mp3")
         self.keyboardControl()
+        self.downloadingSong = True
 
         self.timestampSong = 0
 
@@ -95,26 +34,23 @@ class Ui_MainWindow(object):
         exit()
 
     def window_0(self):
-        widgets_0 = QtWidgets.QWidget(self.MainWindow)
+        self.widgets_0 = QtWidgets.QWidget(self.MainWindow)
 
-        fondo = QtWidgets.QLabel(widgets_0)
+        fondo = QtWidgets.QLabel(self.widgets_0)
         fondo.setGeometry(QtCore.QRect(0, 0, 1200, 800))
-        fondo.setText("")
         fondo.setPixmap(QtGui.QPixmap("data/line.jpg"))
 
-        self.back = QtWidgets.QLabel(widgets_0)
+        self.back = QtWidgets.QLabel(self.widgets_0)
         self.back.setGeometry(QtCore.QRect(120, 130, 960, 540))
-        self.back.setText("")
         self.back.setPixmap(QtGui.QPixmap("data/casette.png"))
 
-        self.MainWindow.setCentralWidget(widgets_0)
+        self.MainWindow.setCentralWidget(self.widgets_0)
 
     def window_1(self):
         widgets_1 = QtWidgets.QWidget(self.MainWindow)
 
         fondo = QtWidgets.QLabel(widgets_1)
         fondo.setGeometry(QtCore.QRect(0, 0, 1200, 800))
-        fondo.setText("")
         fondo.setPixmap(QtGui.QPixmap("data/im.png"))
 
         self.back = QtWidgets.QLabel(widgets_1)
@@ -130,7 +66,6 @@ class Ui_MainWindow(object):
                                         "{"
                                         "background-color: black;"
                                         "color:white;"
-                                        #"border : 3px solid black;"
                                         "border-radius : 15px;"
                                         "font: 500 10pt 'Bahnschrift'"
                                         "}"
@@ -138,13 +73,13 @@ class Ui_MainWindow(object):
                                         "color:black;"
                                         "}")
         canciones.clicked.connect(self.window_2)
+        canciones.clicked.connect(self.setPlayer)
 
         siguiente = QtWidgets.QPushButton(widgets_1)
         siguiente.setGeometry(QtCore.QRect(630, 655, 140, 50))
         siguiente.setStyleSheet("QPushButton"
                                         "{"
                                         "background-color: white;"
-                                        #"border : 3px solid black;"
                                         "border-radius : 20px;"
                                         "image: url(data/next.png);"
                                         "}"
@@ -157,7 +92,6 @@ class Ui_MainWindow(object):
         antes.setStyleSheet("QPushButton"
                                         "{"
                                         "background-color: white;"
-                                        #"border : 3px solid black;"
                                         "border-radius : 20px;"
                                         "image: url(data/prev.png);"
                                         "}"
@@ -165,24 +99,23 @@ class Ui_MainWindow(object):
                                         "image: url(data/prev_.png);}")
         antes.clicked.connect(self.prevSong)
 
-        playPause = QtWidgets.QPushButton(widgets_1)
-        playPause.setGeometry(QtCore.QRect(560, 630, 100, 100))
-        playPause.setStyleSheet("QPushButton"
+        playPauseBtn = QtWidgets.QPushButton(widgets_1)
+        playPauseBtn.setGeometry(QtCore.QRect(560, 630, 100, 100))
+        playPauseBtn.setStyleSheet("QPushButton"
                                         "{"
                                         "background-color: black;"
-                                        #"border : 3px solid black;"
                                         "border-radius : 50px;"
                                          "image: url(data/play-pause1_.png);"
                                         "}"
                                         "QPushButton:pressed""{background-color:white;"
                                         "image: url(data/play-pause1.png);"
                                         "}")
-        playPause.clicked.connect(self.playPause)
+        playPauseBtn.clicked.connect(self.playPause)
 
         self.title = QtWidgets.QLabel(widgets_1)
         self.title.setGeometry(QtCore.QRect(400, 505, 250, 50))
         self.title.setStyleSheet("font: 5000 12pt 'Bahnschrift'")
-        self.title.setText("Kacerrolas")
+        self.title.setText("Radio Tape")
 
         self.artist = QtWidgets.QLabel(widgets_1)
         self.artist.setGeometry(QtCore.QRect(400, 540, 250, 50))
@@ -191,6 +124,8 @@ class Ui_MainWindow(object):
 
         self.progress = QtWidgets.QSlider(widgets_1)
         self.progress.setGeometry(QtCore.QRect(400, 590, 400, 30))
+        self.progress.setOrientation(1)
+        self.progress.setValue(0)
 
         random = QtWidgets.QPushButton(widgets_1)
         random.setGeometry(QtCore.QRect(800, 665, 30, 30))
@@ -206,24 +141,35 @@ class Ui_MainWindow(object):
                                         "}")
         random.clicked.connect(self.shuffle)
 
-        repeat = QtWidgets.QPushButton(widgets_1)
-        repeat.setGeometry(QtCore.QRect(380, 665, 30, 30))
-        repeat.setStyleSheet("QPushButton"
+        self.repeat = QtWidgets.QPushButton(widgets_1)
+        self.repeat.setGeometry(QtCore.QRect(380, 665, 30, 30))
+        self.repeat.setStyleSheet("QPushButton"
                                         "{"
                                         "background-color: black;"
-                                        #"border : 3px solid black;"
+
                                         "border-radius : 15px;"
                                         "image: url(data/repeat.png);"
                                         "}"
-                                        "QPushButton:pressed""{background-color:white;"
-                                        "image: url(data/repeat_.png);"
-                                        "}")
-        repeat.clicked.connect(self.loop)
+                                        "QPushButton:pressed""{border : 3px solid black;"
+                                        "}"
+                                        )
+        self.repeat.clicked.connect(self.loop)
 
-        self.progress.setOrientation(1)
-        self.progress.setValue(0)
+        self.time1 = QtWidgets.QLabel(widgets_1)
+        self.time1.setGeometry(QtCore.QRect(400, 600, 100, 50))
+        self.time1.setStyleSheet("font: 50 10pt 'Bahnschrift'")
+        self.time1.setText("0:00")
+
+        #Duración total
+        self.time2 = QtWidgets.QLabel(widgets_1)
+        self.time2.setGeometry(QtCore.QRect(775, 600, 100, 50))
+        self.time2.setStyleSheet("font: 50 10pt 'Bahnschrift'")
+        self.time2.setText("0:00")
 
         self.MainWindow.setCentralWidget(widgets_1)
+
+        self.loopSong = not self.loopSong
+        self.loop()
 
     def window_2(self):
         widgets_2 = QtWidgets.QWidget(self.MainWindow)
@@ -233,10 +179,33 @@ class Ui_MainWindow(object):
         self.fondo.setText("")
         self.fondo.setPixmap(QtGui.QPixmap("data/im.png"))
 
+        self.back = QtWidgets.QLabel(widgets_2)
+        self.back.setGeometry(QtCore.QRect(700, 515, 100, 100))
+        imagen = QtGui.QPixmap('data/cover.jpg')
+        imag_red = imagen.scaled(100, 100)
+        self.back.setPixmap(QtGui.QPixmap(imag_red))
+
         reproductor = QtWidgets.QPushButton(widgets_2)
         reproductor.setGeometry(QtCore.QRect(530, 30, 150, 30))
         reproductor.setText("Reproductor")
         reproductor.setStyleSheet("QPushButton"
+                                        "{"
+                                        "background-color: black;"
+                                        "color:white;"
+                                        "border-radius : 15px;"
+                                        "font: 500 10pt 'Bahnschrift'"
+                                        "}"
+                                        )
+        reproductor.clicked.connect(self.window_1)
+        reproductor.clicked.connect(self.setPlayer)
+
+        self.download_in = QtWidgets.QLineEdit(widgets_2)
+        self.download_in.setGeometry(QtCore.QRect(550, 160, 150, 32))
+
+        self.download_btn = QtWidgets.QPushButton(widgets_2)
+        self.download_btn.setGeometry(QtCore.QRect(725, 160, 150, 32))
+        self.download_btn.setText("Download Song")
+        self.download_btn.setStyleSheet("QPushButton"
                                         "{"
                                         "background-color: black;"
                                         "color:white;"
@@ -247,21 +216,8 @@ class Ui_MainWindow(object):
                                         "QPushButton:pressed""{background-color:white;"
                                         "color:black;"
                                         "}")
-        reproductor.clicked.connect(self.window_1)
-
-        self.download_in = QtWidgets.QLineEdit(widgets_2)
-        self.download_in.setGeometry(QtCore.QRect(550, 160, 150, 32))
-
-        download = QtWidgets.QPushButton(widgets_2)
-        download.setGeometry(QtCore.QRect(725, 160, 150, 32))
-        download.setText("Download Song")
-        download.setStyleSheet("border-radius : 15px;")
-        download.clicked.connect(self.download)
-
-        self.label_res = QtWidgets.QLabel(widgets_2)
-        self.label_res.setGeometry(QtCore.QRect(900, 160, 150, 32))
-        self.label_res.setText("Download songs")
-        self.label_res.setStyleSheet("font: 500 10pt 'Bahnschrift'")
+        self.download_btn.clicked.connect(self.download)
+        self.download_btn.setEnabled(self.downloadingSong)
 
         data = []
         for song in self.songs:
@@ -272,16 +228,105 @@ class Ui_MainWindow(object):
             time = '{0}:{1}'.format(song["duration"]//60, (str(song["duration"]%60)).zfill(2))
             data.append([title, song["artist"], song["album"], song["date"]["year"], time])
 
-        self.model = TableModel(data)
+        self.model = modelsPyQt5.TableModel(data)
 
         self.table = QtWidgets.QTableView(widgets_2)
-        self.table.setGeometry(QtCore.QRect(275, 260, 650, 430))
+        self.table.setGeometry(QtCore.QRect(261, 140, 677, 350))
         self.table.setModel(self.model)
 
-        self.MainWindow.setCentralWidget(widgets_2)
+        nextSongBtn = QtWidgets.QPushButton(widgets_2)
+        nextSongBtn.setGeometry(QtCore.QRect(630, 675, 140, 50))
+        nextSongBtn.setStyleSheet("QPushButton"
+                                        "{"
+                                        "background-color: white;"
+                                        "border-radius : 20px;"
+                                        "image: url(data/next.png);"
+                                        "}"
+                                        "QPushButton:pressed""{background-color:black;"
+                                        "image: url(data/next_.png);}")
+        nextSongBtn.clicked.connect(self.nextSong)
 
-    def setLabelYt(self, msg):
-        self.label_res.setText(msg)
+        prevSongBtn = QtWidgets.QPushButton(widgets_2)
+        prevSongBtn.setGeometry(QtCore.QRect(440, 675, 140, 50))
+        prevSongBtn.setStyleSheet("QPushButton"
+                                        "{"
+                                        "background-color: white;"
+                                        "border-radius : 20px;"
+                                        "image: url(data/prev.png);"
+                                        "}"
+                                        "QPushButton:pressed""{background-color:black;"
+                                        "image: url(data/prev_.png);}")
+        prevSongBtn.clicked.connect(self.prevSong)
+
+        playPauseBtn = QtWidgets.QPushButton(widgets_2)
+        playPauseBtn.setGeometry(QtCore.QRect(560, 650, 100, 100))
+        playPauseBtn.setStyleSheet("QPushButton"
+                                        "{"
+                                        "background-color: black;"
+                                        "border-radius : 50px;"
+                                         "image: url(data/play-pause1_.png);"
+                                        "}"
+                                        "QPushButton:pressed""{background-color:white;"
+                                        "image: url(data/play-pause1.png);"
+                                        "}")
+        playPauseBtn.clicked.connect(self.playPause)
+
+        self.title = QtWidgets.QLabel(widgets_2)
+        self.title.setGeometry(QtCore.QRect(400, 515, 250, 50))
+        self.title.setStyleSheet("font: 5000 12pt 'Bahnschrift'")
+        self.title.setText("Kacerrolas")
+
+        self.artist = QtWidgets.QLabel(widgets_2)
+        self.artist.setGeometry(QtCore.QRect(400, 550, 250, 50))
+        self.artist.setStyleSheet("font: 5000 12pt 'Bahnschrift'")
+        self.artist.setText("By Antonio, Frida & Jhonny")
+
+        self.progress = QtWidgets.QSlider(widgets_2)
+        self.progress.setGeometry(QtCore.QRect(400, 610, 400, 30))
+        self.progress.setOrientation(1)
+
+        randomBtn = QtWidgets.QPushButton(widgets_2)
+        randomBtn.setGeometry(QtCore.QRect(800, 685, 30, 30))
+        randomBtn.setStyleSheet("QPushButton"
+                                        "{"
+                                        "background-color: black;"
+                                        "border-radius : 15px;"
+                                        "image: url(data/random.png);"
+                                        "}"
+                                        "QPushButton:pressed""{background-color:white;"
+                                        "image: url(data/random_.png);"
+                                        "}")
+        randomBtn.clicked.connect(self.shuffle)
+
+        self.repeat = QtWidgets.QPushButton(widgets_2)
+        self.repeat.setGeometry(QtCore.QRect(380, 685, 30, 30))
+
+        self.repeat.setStyleSheet("QPushButton"
+                                        "{"
+                                        "background-color: black;"
+                                        "border-radius : 15px;"
+                                        "image: url(data/repeat.png);"
+                                        "}"
+                                        "QPushButton:pressed""{background-color:white;"
+                                        "image: url(data/repeat_.png);"
+                                        "}")
+        self.repeat.clicked.connect(self.loop)
+
+        self.time1 = QtWidgets.QLabel(widgets_2)
+        self.time1.setGeometry(QtCore.QRect(400, 610, 100, 50))
+        self.time1.setStyleSheet("font: 50 10pt 'Bahnschrift'")
+        self.time1.setText("0:00")
+
+        #Duración total
+        self.time2 = QtWidgets.QLabel(widgets_2)
+        self.time2.setGeometry(QtCore.QRect(775, 620, 100, 50))
+        self.time2.setStyleSheet("font: 50 10pt 'Bahnschrift'")
+        self.time2.setText("0:00")
+
+        self.MainWindow.setCentralWidget(widgets_2)
+        self.loopSong = not self.loopSong
+        self.loop()
+
 
     def keybordInstruction(self, ins):
         ({
@@ -289,8 +334,8 @@ class Ui_MainWindow(object):
                         "B" : lambda _: self.nextSong(),
                         "C" : lambda _: self.prevSong(),
                         "D" : lambda _: print("D"),
-                        "#" : lambda _: print("#"),
-                        "*" : lambda _: print("*")
+                        "#" : lambda _: print(self.playerMaster.volume),
+                        "*" : lambda _: self.playerMaster._do_setvolume
         })[ins](True)
 
     def keybordSelectSong(self, num):
@@ -301,7 +346,7 @@ class Ui_MainWindow(object):
 
     def keyboardControl(self):
         self.thread_key = QThread()
-        self.keyboardClass = Keyboard()
+        self.keyboardClass = taskQCorePython.Keyboard()
         self.keyboardClass.moveToThread(self.thread_key)
 
         self.keyboardClass.finished.connect(self.thread_key.quit)
@@ -315,20 +360,33 @@ class Ui_MainWindow(object):
         self.thread_key.start()
 
     def download(self):
+        if self.download_in.text() == "":
+            return
+        self.download_in.setText("")
+        self.download_btn.setEnabled(False)
+        self.downloadingSong = False
         self.thread = QThread()
-        self.Downloader = Downloader()
+        self.Downloader = taskQCorePython.Downloader()
         self.Downloader.set(self.download_in.text())
         self.Downloader.moveToThread(self.thread)
 
         self.Downloader.finished.connect(self.thread.quit)
         self.Downloader.finished.connect(self.Downloader.deleteLater)
-        self.Downloader.progress.connect(self.setLabelYt)
 
         self.thread.started.connect(self.Downloader.dwn)
         self.thread.finished.connect(self.thread.deleteLater)
 
         self.thread.start()
         self.thread.finished.connect(self.refreshDataSheet)
+        self.thread.finished.connect(self.endDownload)
+
+    def endDownload(self):
+        try:
+            self.downloadingSong = True
+            self.download_in.setText("")
+            self.download_btn.setEnabled(True)
+        except:
+            pass
 
     def refreshDataSheet(self):
         self.songs = json.load(open("database.json", "r"))["songs"]
@@ -339,12 +397,14 @@ class Ui_MainWindow(object):
         self.timestampSong += 1
         try:
             self.progress.setValue(self.timestampSong)
+            self.time1.setText(str(self.timestampSong//60)+":"+(str(self.timestampSong%60)).zfill(2))
         except:
             pass
         if self.timestampSong >= self.maxSongDuration:
             self.endSong()
 
     def playSong(self):
+        self.setPlayer(self.selected)
         self.timestampSong = 0
         self.playerMaster = AudioPlayer("./data/music/" + str(self.songs[self.selected]["song_number"]) + ".mp3")
         self.playerMaster.play()
@@ -354,24 +414,32 @@ class Ui_MainWindow(object):
 
     def nextSong(self):
         self.selected = (self.selected + 1) % self.sizeSongs
-        self.setPlayer(self.selected)
         self.playSong()
 
     def prevSong(self):
         self.selected = (self.selected or (self.sizeSongs)) -1
-        self.setPlayer(self.selected)
         self.playSong()
 
     def playPause(self):
         self.controlPP = not self.controlPP
         if self.controlPP:
-            self.playerMaster.pause()
-            self.timerSong.stop()
+            if self.playerMaster._player == None:
+                self.playSong()
+                self.controlPP = not self.controlPP
+            else:
+                print(dir(self.playerMaster))
+                self.playerMaster.pause()
+                self.timerSong.stop()
         else:
             self.playerMaster.resume()
             self.timerSong.start()
 
-    def setPlayer(self, number):
+    def setPlayer(self, number=-1):
+        if number == -1:
+            number = self.selected
+
+        self.loopSong = not self.loopSong
+        self.loop()
         if self.songs[self.selected]["song"] != "Unknow":
             self.title.setText(self.songs[self.selected]["song"])
         else:
@@ -380,9 +448,26 @@ class Ui_MainWindow(object):
         self.artist.setText(self.songs[self.selected]["artist"])
         self.progress.setMaximum(self.songs[self.selected]["duration"])
         self.back.setPixmap(QtGui.QPixmap(glob.glob("data/music/"+str(self.songs[self.selected]["song_number"]) + "_thumbnail*")[0]))
+        self.time2.setText(str(self.songs[self.selected]["duration"]//60) + ":" + (str(self.songs[self.selected]["duration"]%60)).zfill(2))
 
     def loop(self):
         self.loopSong = not self.loopSong
+        if self.loopSong:
+            self.repeat.setStyleSheet("QPushButton"
+                                        "{"
+                                        "background-color: white;"
+                                        "border-radius : 15px;"
+                                        "image: url(data/repeat_.png);"
+                                        "}"
+                                        )
+        else:
+            self.repeat.setStyleSheet("QPushButton"
+                                        "{"
+                                        "background-color: black;"
+                                        "border-radius : 15px;"
+                                        "image: url(data/repeat.png);"
+                                        "}"
+                                        )
 
     def endSong(self):
         if not self.loopSong:
@@ -392,6 +477,16 @@ class Ui_MainWindow(object):
 
     def shuffle(self):
         random.shuffle(self.songs)
+        data = []
+        for song in self.songs:
+            title = song["song"]
+            if title == "Unknow":
+                title = song["title"]
+
+            time = '{0}:{1}'.format(song["duration"]//60, (str(song["duration"]%60)).zfill(2))
+            data.append([title, song["artist"], song["album"], song["date"]["year"], time])
+        self.model = modelsPyQt5.TableModel(data)
+        self.table.setModel(self.model)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
