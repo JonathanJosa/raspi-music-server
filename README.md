@@ -21,10 +21,10 @@ Instalación de audioplayer
 ```sh
 pip install audioplayer
 ```
-
-
-
-
+Instalación de youtube_dl
+```sh
+pip install youtube_dl
+```
 
 ## Construcción del código
 ### Codigo principal
