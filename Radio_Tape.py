@@ -390,7 +390,9 @@ class Ui_MainWindow(object):
             "Prev": lambda _ : self.prevSong(),
             "PlPa": lambda _ : self.playPause(),
             "PlPa": lambda _ : self.playPause(),
-            "Sele": lambda n : self.keybordSelectSong(n)
+            "Sele": lambda n : self.keybordSelectSong(n),
+            "Loop": lambda _ : self.loop(),
+            "Shuf": lambda _ : self.shuffle()
         }[opt[0:4]])(int(opt[4:]))
 
     def oledShow(self):

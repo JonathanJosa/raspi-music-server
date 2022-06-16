@@ -18,6 +18,28 @@ def start_bot():
     bot.config['api_key'] = "5159291527:AAECemDgi7fT9VkN2YA3opmTS0GbRnCTZSA"
     bot.poll(debug=True)
 
+@bot.route('/commands ?(.*)')
+def helpUser(message, cmd):
+    commands = """
+    Commands:
+      /name {name}
+      /pass {pass}
+      /songs
+      /download {natural name}
+      /next
+      /prev
+      /playPause
+      /select {num song}
+      /shuffle
+      /repeat
+      /status
+      /shutdown
+      /close
+      /shell
+      {any} -> Python code execute
+    """
+    bot.send_message(chat_dest, commands)
+
 @bot.route('/name ?(.*)')
 def setNewConnectUser(message, cmd):
     chat_dest = message['chat']['id']
@@ -30,7 +52,6 @@ def setNewConnectUser(message, cmd):
         join[chat_dest] = (name, 3)
         bot.send_message(chat_dest, "Please insert password: "+name)
         print(message)
-
 
 @bot.route('/pass ?(.*)')
 def passwordNewUser(message, cmd):
@@ -52,7 +73,7 @@ def passwordNewUser(message, cmd):
         bot.send_message(chat_dest, "Please register first")
 
 @bot.route('/songs ?(.*)')
-def showCPU(message, cmd):
+def showSongs(message, cmd):
     chat_dest = message['chat']['id']
     if users.get(chat_dest) != None:
         data = (json.load(open("database.json", "r"))["songs"])
@@ -79,7 +100,7 @@ def showCPU(message, cmd):
         bot.send_message(chat_dest, "Please register first")
 
 @bot.route('/next ?(.*)')
-def showCPU(message, cmd):
+def nextSong(message, cmd):
     chat_dest = message['chat']['id']
     if users.get(chat_dest) != None:
         bot.send_message(chat_dest, "Next Song")
@@ -88,7 +109,7 @@ def showCPU(message, cmd):
         bot.send_message(chat_dest, "Please register first")
 
 @bot.route('/prev ?(.*)')
-def showCPU(message, cmd):
+def previSong(message, cmd):
     chat_dest = message['chat']['id']
     if users.get(chat_dest) != None:
         bot.send_message(chat_dest, "Previous Song")
@@ -97,7 +118,7 @@ def showCPU(message, cmd):
         bot.send_message(chat_dest, "Please register first")
 
 @bot.route('/playPause ?(.*)')
-def showCPU(message, cmd):
+def playPauseControl(message, cmd):
     chat_dest = message['chat']['id']
     if users.get(chat_dest) != None:
         bot.send_message(chat_dest, "Previous Song")
@@ -106,7 +127,7 @@ def showCPU(message, cmd):
         bot.send_message(chat_dest, "Please register first")
 
 @bot.route('/select ?(.*)')
-def showCPU(message, cmd):
+def selectAnySong(message, cmd):
     chat_dest = message['chat']['id']
     if users.get(chat_dest) != None:
         bot.send_message(chat_dest, "Previous Song")
@@ -114,8 +135,26 @@ def showCPU(message, cmd):
     else:
         bot.send_message(chat_dest, "Please register first")
 
+@bot.route('/shuffle ?(.*)')
+def shuffleList(message, cmd):
+    chat_dest = message['chat']['id']
+    if users.get(chat_dest) != None:
+        bot.send_message(chat_dest, "Shuffle")
+        window.telegramInterpreter("Shuf1")
+    else:
+        bot.send_message(chat_dest, "Please register first")
+
+@bot.route('/repeat ?(.*)')
+def repeatSong(message, cmd):
+    chat_dest = message['chat']['id']
+    if users.get(chat_dest) != None:
+        bot.send_message(chat_dest, "Shuffle")
+        window.telegramInterpreter("Loop1")
+    else:
+        bot.send_message(chat_dest, "Please register first")
+
 @bot.route('/status ?(.*)')
-def showCPU(message, cmd):
+def statusCPU(message, cmd):
     chat_dest = message['chat']['id']
     if users.get(chat_dest) != None:
         bot.send_message(chat_dest, os.popen("mpstat -P all").read())
