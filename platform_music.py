@@ -97,6 +97,11 @@ class Ui_MainWindow(object):
     def window_0(self):
         widgets_0 = QtWidgets.QWidget(self.MainWindow)
 
+        fondo = QtWidgets.QLabel(widgets_0)
+        fondo.setGeometry(QtCore.QRect(0, 0, 1200, 800))
+        fondo.setText("")
+        fondo.setPixmap(QtGui.QPixmap("data/line.jpg"))
+
         self.back = QtWidgets.QLabel(widgets_0)
         self.back.setGeometry(QtCore.QRect(120, 130, 960, 540))
         self.back.setText("")
@@ -104,55 +109,116 @@ class Ui_MainWindow(object):
 
         self.MainWindow.setCentralWidget(widgets_0)
 
-
     def window_1(self):
         widgets_1 = QtWidgets.QWidget(self.MainWindow)
 
+        fondo = QtWidgets.QLabel(widgets_1)
+        fondo.setGeometry(QtCore.QRect(0, 0, 1200, 800))
+        fondo.setText("")
+        fondo.setPixmap(QtGui.QPixmap("data/im.png"))
+
         self.back = QtWidgets.QLabel(widgets_1)
-        self.back.setGeometry(QtCore.QRect(0, 0, 1200, 800))
-        self.back.setText("")
-        self.back.setPixmap(QtGui.QPixmap("data/gato_piano.jpg"))
+        self.back.setGeometry(QtCore.QRect(400, 95, 400, 400))
+        imagen = QtGui.QPixmap('data/cover.jpg')
+        imag_red = imagen.scaled(400, 400)
+        self.back.setPixmap(QtGui.QPixmap(imag_red))
 
-        canciones_secc_1 = QtWidgets.QPushButton(widgets_1)
-        canciones_secc_1.setGeometry(QtCore.QRect(20, 40, 150, 40))
-        canciones_secc_1.setText("Canciones")
-        canciones_secc_1.clicked.connect(self.window_2)
+        canciones = QtWidgets.QPushButton(widgets_1)
+        canciones.setGeometry(QtCore.QRect(530, 30, 150, 30))
+        canciones.setText("Canciones")
+        canciones.setStyleSheet("QPushButton"
+                                        "{"
+                                        "background-color: black;"
+                                        "color:white;"
+                                        #"border : 3px solid black;"
+                                        "border-radius : 15px;"
+                                        "font: 500 10pt 'Bahnschrift'"
+                                        "}"
+                                        "QPushButton:pressed""{background-color:white;"
+                                        "color:black;"
+                                        "}")
+        canciones.clicked.connect(self.window_2)
 
-        canciones_secc_1 = QtWidgets.QPushButton(widgets_1)
-        canciones_secc_1.setGeometry(QtCore.QRect(20, 240, 150, 40))
-        canciones_secc_1.setText("Siguiente")
-        canciones_secc_1.clicked.connect(self.nextSong)
+        siguiente = QtWidgets.QPushButton(widgets_1)
+        siguiente.setGeometry(QtCore.QRect(630, 655, 140, 50))
+        siguiente.setStyleSheet("QPushButton"
+                                        "{"
+                                        "background-color: white;"
+                                        #"border : 3px solid black;"
+                                        "border-radius : 20px;"
+                                        "image: url(data/next.png);"
+                                        "}"
+                                        "QPushButton:pressed""{background-color:black;"
+                                        "image: url(data/next_.png);}")
+        siguiente.clicked.connect(self.nextSong)
 
-        canciones_secc_1 = QtWidgets.QPushButton(widgets_1)
-        canciones_secc_1.setGeometry(QtCore.QRect(20, 440, 150, 40))
-        canciones_secc_1.setText("Antes")
-        canciones_secc_1.clicked.connect(self.prevSong)
+        antes = QtWidgets.QPushButton(widgets_1)
+        antes.setGeometry(QtCore.QRect(440, 655, 140, 50))
+        antes.setStyleSheet("QPushButton"
+                                        "{"
+                                        "background-color: white;"
+                                        #"border : 3px solid black;"
+                                        "border-radius : 20px;"
+                                        "image: url(data/prev.png);"
+                                        "}"
+                                        "QPushButton:pressed""{background-color:black;"
+                                        "image: url(data/prev_.png);}")
+        antes.clicked.connect(self.prevSong)
 
-        canciones_secc_1 = QtWidgets.QPushButton(widgets_1)
-        canciones_secc_1.setGeometry(QtCore.QRect(20, 640, 150, 40))
-        canciones_secc_1.setText("Play/Pause")
-        canciones_secc_1.clicked.connect(self.playPause)
+        playPause = QtWidgets.QPushButton(widgets_1)
+        playPause.setGeometry(QtCore.QRect(560, 630, 100, 100))
+        playPause.setStyleSheet("QPushButton"
+                                        "{"
+                                        "background-color: black;"
+                                        #"border : 3px solid black;"
+                                        "border-radius : 50px;"
+                                         "image: url(data/play-pause1_.png);"
+                                        "}"
+                                        "QPushButton:pressed""{background-color:white;"
+                                        "image: url(data/play-pause1.png);"
+                                        "}")
+        playPause.clicked.connect(self.playPause)
 
         self.title = QtWidgets.QLabel(widgets_1)
-        self.title.setGeometry(QtCore.QRect(300, 40, 150, 40))
+        self.title.setGeometry(QtCore.QRect(400, 505, 250, 50))
+        self.title.setStyleSheet("font: 5000 12pt 'Bahnschrift'")
         self.title.setText("Kacerrolas")
 
         self.artist = QtWidgets.QLabel(widgets_1)
-        self.artist.setGeometry(QtCore.QRect(300, 240, 150, 40))
+        self.artist.setGeometry(QtCore.QRect(400, 540, 250, 50))
+        self.artist.setStyleSheet("font: 5000 12pt 'Bahnschrift'")
         self.artist.setText("By Antonio, Frida & Jhonny")
 
         self.progress = QtWidgets.QSlider(widgets_1)
-        self.progress.setGeometry(QtCore.QRect(300, 440, 150, 40))
+        self.progress.setGeometry(QtCore.QRect(400, 590, 400, 30))
 
-        canciones_secc_1 = QtWidgets.QPushButton(widgets_1)
-        canciones_secc_1.setGeometry(QtCore.QRect(300, 640, 150, 40))
-        canciones_secc_1.setText("random")
-        canciones_secc_1.clicked.connect(self.shuffle)
+        random = QtWidgets.QPushButton(widgets_1)
+        random.setGeometry(QtCore.QRect(800, 665, 30, 30))
+        random.setStyleSheet("QPushButton"
+                                        "{"
+                                        "background-color: black;"
+                                        #"border : 3px solid black;"
+                                        "border-radius : 15px;"
+                                        "image: url(data/random.png);"
+                                        "}"
+                                        "QPushButton:pressed""{background-color:white;"
+                                        "image: url(data/random_.png);"
+                                        "}")
+        random.clicked.connect(self.shuffle)
 
-        canciones_secc_1 = QtWidgets.QPushButton(widgets_1)
-        canciones_secc_1.setGeometry(QtCore.QRect(500, 40, 150, 40))
-        canciones_secc_1.setText("repeat")
-        canciones_secc_1.clicked.connect(self.loop)
+        repeat = QtWidgets.QPushButton(widgets_1)
+        repeat.setGeometry(QtCore.QRect(380, 665, 30, 30))
+        repeat.setStyleSheet("QPushButton"
+                                        "{"
+                                        "background-color: black;"
+                                        #"border : 3px solid black;"
+                                        "border-radius : 15px;"
+                                        "image: url(data/repeat.png);"
+                                        "}"
+                                        "QPushButton:pressed""{background-color:white;"
+                                        "image: url(data/repeat_.png);"
+                                        "}")
+        repeat.clicked.connect(self.loop)
 
         self.progress.setOrientation(1)
         self.progress.setValue(0)
@@ -162,22 +228,40 @@ class Ui_MainWindow(object):
     def window_2(self):
         widgets_2 = QtWidgets.QWidget(self.MainWindow)
 
-        canciones_secc_2 = QtWidgets.QPushButton(widgets_2)
-        canciones_secc_2.setGeometry(QtCore.QRect(225, 360, 150, 32))
-        canciones_secc_2.setText("reproductor")
-        canciones_secc_2.clicked.connect(self.window_1)
+        self.fondo = QtWidgets.QLabel(widgets_2)
+        self.fondo.setGeometry(QtCore.QRect(0, 0, 1200, 800))
+        self.fondo.setText("")
+        self.fondo.setPixmap(QtGui.QPixmap("data/im.png"))
+
+        reproductor = QtWidgets.QPushButton(widgets_2)
+        reproductor.setGeometry(QtCore.QRect(530, 30, 150, 30))
+        reproductor.setText("Reproductor")
+        reproductor.setStyleSheet("QPushButton"
+                                        "{"
+                                        "background-color: black;"
+                                        "color:white;"
+                                        #"border : 3px solid black;"
+                                        "border-radius : 15px;"
+                                        "font: 500 10pt 'Bahnschrift'"
+                                        "}"
+                                        "QPushButton:pressed""{background-color:white;"
+                                        "color:black;"
+                                        "}")
+        reproductor.clicked.connect(self.window_1)
 
         self.download_in = QtWidgets.QLineEdit(widgets_2)
-        self.download_in.setGeometry(QtCore.QRect(550, 60, 150, 32))
+        self.download_in.setGeometry(QtCore.QRect(550, 160, 150, 32))
 
-        canciones_secc_2 = QtWidgets.QPushButton(widgets_2)
-        canciones_secc_2.setGeometry(QtCore.QRect(725, 60, 150, 32))
-        canciones_secc_2.setText("yes")
-        canciones_secc_2.clicked.connect(self.download)
+        download = QtWidgets.QPushButton(widgets_2)
+        download.setGeometry(QtCore.QRect(725, 160, 150, 32))
+        download.setText("Download Song")
+        download.setStyleSheet("border-radius : 15px;")
+        download.clicked.connect(self.download)
 
         self.label_res = QtWidgets.QLabel(widgets_2)
-        self.label_res.setGeometry(QtCore.QRect(900, 60, 150, 32))
+        self.label_res.setGeometry(QtCore.QRect(900, 160, 150, 32))
         self.label_res.setText("Download songs")
+        self.label_res.setStyleSheet("font: 500 10pt 'Bahnschrift'")
 
         data = []
         for song in self.songs:
@@ -191,7 +275,7 @@ class Ui_MainWindow(object):
         self.model = TableModel(data)
 
         self.table = QtWidgets.QTableView(widgets_2)
-        self.table.setGeometry(QtCore.QRect(500, 260, 650, 430))
+        self.table.setGeometry(QtCore.QRect(275, 260, 650, 430))
         self.table.setModel(self.model)
 
         self.MainWindow.setCentralWidget(widgets_2)
