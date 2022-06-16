@@ -49,6 +49,7 @@ class Ui_MainWindow(object):
 
     def window_1(self):
         widgets_1 = QtWidgets.QWidget(self.MainWindow)
+        self.widthScaled = 400
 
         fondo = QtWidgets.QLabel(widgets_1)
         fondo.setGeometry(QtCore.QRect(0, 0, 1200, 800))
@@ -174,6 +175,7 @@ class Ui_MainWindow(object):
 
     def window_2(self):
         widgets_2 = QtWidgets.QWidget(self.MainWindow)
+        self.widthScaled = 100
 
         self.fondo = QtWidgets.QLabel(widgets_2)
         self.fondo.setGeometry(QtCore.QRect(0, 0, 1200, 800))
@@ -201,10 +203,10 @@ class Ui_MainWindow(object):
         reproductor.clicked.connect(self.setPlayer)
 
         self.download_in = QtWidgets.QLineEdit(widgets_2)
-        self.download_in.setGeometry(QtCore.QRect(550, 160, 150, 32))
+        self.download_in.setGeometry(QtCore.QRect(300, 85, 400, 32))
 
         self.download_btn = QtWidgets.QPushButton(widgets_2)
-        self.download_btn.setGeometry(QtCore.QRect(725, 160, 150, 32))
+        self.download_btn.setGeometry(QtCore.QRect(725, 85, 200, 32))
         self.download_btn.setText("Download Song")
         self.download_btn.setStyleSheet("QPushButton"
                                         "{"
@@ -232,7 +234,7 @@ class Ui_MainWindow(object):
         self.model = modelsPyQt5.TableModel(data)
 
         self.table = QtWidgets.QTableView(widgets_2)
-        self.table.setGeometry(QtCore.QRect(261, 140, 677, 350))
+        self.table.setGeometry(QtCore.QRect(311, 140, 577, 350))
         self.table.setModel(self.model)
 
         nextSongBtn = QtWidgets.QPushButton(widgets_2)
@@ -335,8 +337,8 @@ class Ui_MainWindow(object):
                         "B" : lambda _: self.nextSong(),
                         "C" : lambda _: self.prevSong(),
                         "D" : lambda _: print("D"),
-                        "#" : lambda _: print(self.playerMaster.volume),
-                        "*" : lambda _: self.playerMaster._do_setvolume
+                        "#" : lambda _: self.shuffle(),
+                        "*" : lambda _: self.loop()
         })[ins](True)
 
     def keybordSelectSong(self, num):
@@ -363,13 +365,14 @@ class Ui_MainWindow(object):
     def download(self):
         if self.download_in.text() == "":
             return
-        self.download_in.setText("")
         self.download_btn.setEnabled(False)
         self.downloadingSong = False
         self.thread = QThread()
         self.Downloader = taskQCorePython.Downloader()
         self.Downloader.set(self.download_in.text())
         self.Downloader.moveToThread(self.thread)
+        
+        self.download_in.setText("")
 
         self.Downloader.finished.connect(self.thread.quit)
         self.Downloader.finished.connect(self.Downloader.deleteLater)
@@ -426,9 +429,6 @@ class Ui_MainWindow(object):
     def nextSong(self):
         self.selected = (self.selected + 1) % self.sizeSongs
         self.playSong()
-        self.thread_oled.quit()
-        self.disp.deleteLater()
-        self.thread_oled.deleteLater()
 
     def prevSong(self):
         self.selected = (self.selected or (self.sizeSongs)) -1
@@ -441,7 +441,6 @@ class Ui_MainWindow(object):
                 self.playSong()
                 self.controlPP = not self.controlPP
             else:
-                print(dir(self.playerMaster))
                 self.playerMaster.pause()
                 self.timerSong.stop()
         else:
@@ -461,7 +460,11 @@ class Ui_MainWindow(object):
 
         self.artist.setText(self.songs[self.selected]["artist"])
         self.progress.setMaximum(self.songs[self.selected]["duration"])
-        self.back.setPixmap(QtGui.QPixmap(glob.glob("data/music/"+str(self.songs[self.selected]["song_number"]) + "_thumbnail*")[0]))
+        
+        imagen = QtGui.QPixmap(glob.glob("data/music/"+str(self.songs[self.selected]["song_number"]) + "_thumbnail*")[0])
+        imag_red = imagen.scaled(self.widthScaled, self.widthScaled)
+        self.back.setPixmap(imag_red)
+        
         self.time2.setText(str(self.songs[self.selected]["duration"]//60) + ":" + (str(self.songs[self.selected]["duration"]%60)).zfill(2))
         self.oledShow()
 
@@ -501,7 +504,10 @@ class Ui_MainWindow(object):
             time = '{0}:{1}'.format(song["duration"]//60, (str(song["duration"]%60)).zfill(2))
             data.append([title, song["artist"], song["album"], song["date"]["year"], time])
         self.model = modelsPyQt5.TableModel(data)
-        self.table.setModel(self.model)
+        try:
+            self.table.setModel(self.model)
+        except:
+            pass
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

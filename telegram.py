@@ -51,7 +51,7 @@ def showCPU(message, cmd):
     chat_dest = message['chat']['id']
     if users.get(chat_dest) != None:
         list_songs = ""
-        for song in (json.load(open("database.json", "r"))).keys():
+        for song in (json.load(open("database.json", "r"))["songs"]).keys():
             list_songs += song + "\n"
         bot.send_message(chat_dest, list_songs)
     else:
