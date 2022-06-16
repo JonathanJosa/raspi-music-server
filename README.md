@@ -4,12 +4,28 @@ using python3 with pyqt5, i2c and bluetooth protocol, serial connection to ardui
 #Mp3
 Este es un codigo programado en python y C# con FreeRtos en el microcontrolador 328p, para el funcionamiento de un reproductor mp3. Se integraron dos componentes que funcionaron como dispositivos de entrada y salida, un teclado matricial para el control y manejo de las canciones y una pantalla oled donde se muestra la información de la canción en reproducción. 
 
-#Instalación
+#Instalación 
+Instalación de pyqt5
 ```sh
+pip install PyQt5
 ```
-Librería del display Oled.
+Instalación de luma.core
 ```sh
+pip install luma.core
 ```
+Instalación de multitasking
+```sh
+pip install multitasking
+```
+Instalación de audioplayer
+```sh
+pip install audioplayer
+```
+
+
+
+
+
 ## Construcción del código
 ### Codigo principal
 Se importan las siguientes librerías:
