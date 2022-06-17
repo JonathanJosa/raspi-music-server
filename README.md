@@ -187,6 +187,7 @@ python3 Radio_Tape.py
 # Conexiones
 Conexión del teclado matricial al arduino uno
 ![cover](https://github.com/JonathanJosa/raspi-music-server/blob/main/Conexiones/Matricial.PNG)
+
 Conexión de la oled a la raspberry 3b+
 ![cover](https://github.com/JonathanJosa/raspi-music-server/blob/main/Conexiones/oled.png)
 ## Conclusiones
