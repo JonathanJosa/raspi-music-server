@@ -36,7 +36,8 @@ Se importan las siguientes librerías:
 ```
 
 ### Codigo arduino
-Codigo arduino para el control del teclado matricial por medio de 2 tareas
+Codigo arduino para el control de las acciones que se enviarán por medio de un teclado matricial.
+
 Se declaran las librerías y se configura el uso y manejo de pines para los macros
 ```arduino
 //demostración del uso de queues con FreeRTOS
@@ -52,7 +53,7 @@ Se declaran las librerías y se configura el uso y manejo de pines para los macr
 #define WriteOutputPinHigh(REG, PIN) (REG |= (1 << PIN))
 #define ToggleOutputPin(REG, PIN)    (REG ^= (1 << PIN))
 ```
-
+Se declara el valor de la tasa de comunicación, se crea el handle para una cola y se crea un buffer para el uart
 ```arduino
 //declaraciones de la tasa de comunicación serial
 #define F_CPU 16000000UL
@@ -66,7 +67,10 @@ QueueHandle_t myQueue;
 
 //buffer para el UART
 unsigned char mybuffer[25];
+```
 
+
+```Arduino
 //Tecla presionada
 //Modificada por el isr
 int row = 0;
@@ -89,6 +93,9 @@ void setup()
   xTaskCreate(vSenderRows,       "ROWS SENDER",   100, NULL, 1, NULL);
   xTaskCreate(vReceiverTask,     "RECEIVER TASK", 100, NULL, 1, NULL);
 
+```
+
+```arduino
   // Renglones en alta impedancia
   MakeInputPin(DDRB, PB3); WriteOutputPinHigh(PORTB, PB3);
   MakeInputPin(DDRB, PB2); WriteOutputPinHigh(PORTB, PB2);
@@ -100,7 +107,9 @@ void setup()
   MakeInputPin(DDRD, PD6); EnablePullUp(PORTD, PD6);
   MakeInputPin(DDRD, PD5); EnablePullUp(PORTD, PD5);
   MakeInputPin(DDRD, PD4); EnablePullUp(PORTD, PD4);
-
+```
+Se habilitan las interrupciones por el cambio de estado en el puerto D y se configura el puerto serial
+```arduino
   //interrupciones para DDRD
   //se habilita interrupción por cambio de estado en PORTD
   PCICR |= (1 << PCIE2);
@@ -113,7 +122,9 @@ void setup()
   UCSR0C = 0x06;       // Set frame format: 8data, 1stop bit
   UCSR0B |= (1 << RXEN0) | (1 << TXEN0);   // TX y RX habilitados
 }
-
+```
+Acciones de las tareas vSenderRows y vReceiverTask en donde se lee el estado del teclado matricial y en caso de que se encuentre una acción esta se reviará por medio del UART
+```arduino
 void vSenderRows(void * pvParameters){
   while(true){
     MakeOutputPin(DDRB, row);
@@ -141,8 +152,9 @@ void vReceiverTask(void * pvParameters)
     vTaskDelay(pdMS_TO_TICKS(250));
   }
 }
-
-
+```
+Transmición de información por medio del UART
+```arduino
 //////////funciones de transmisión del UART///////////////
 
 void USART_Transmit(unsigned char data)
@@ -163,7 +175,9 @@ void USART_Transmit_String(unsigned char * pdata)
 }
 
 //////////////////////////////////////////////////////////////
-
+```
+Creación del ISR para la transmición de datos hacia la cola
+```arduino
 ISR(PCINT2_vect){
   int pin_interrupt[4] = {7, 6, 5, 4};
   int row_interrupt = row;
