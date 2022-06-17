@@ -68,8 +68,7 @@ QueueHandle_t myQueue;
 //buffer para el UART
 unsigned char mybuffer[25];
 ```
-
-
+Se declara el tamaño de la cola y se crean las tareas del programa
 ```Arduino
 //Tecla presionada
 //Modificada por el isr
@@ -94,7 +93,7 @@ void setup()
   xTaskCreate(vReceiverTask,     "RECEIVER TASK", 100, NULL, 1, NULL);
 
 ```
-
+Declaramos los pines como entradas y salidas así como se habilitan los pull up.
 ```arduino
   // Renglones en alta impedancia
   MakeInputPin(DDRB, PB3); WriteOutputPinHigh(PORTB, PB3);
