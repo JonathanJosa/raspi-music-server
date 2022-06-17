@@ -197,4 +197,7 @@ Conexión de la oled a la raspberry 3b+ por medio del protocolo i2c
 
 ![cover](https://github.com/JonathanJosa/raspi-music-server/blob/main/Conexiones/oled.png)
 
+#Video demo de la aplicación
+https://youtu.be/2BXIbfJhkOk
+
 ## Conclusiones
