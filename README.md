@@ -34,8 +34,10 @@ Se importan las siguientes librerías:
 
 ```Py
 ```
-### Codigo arduino
 
+### Codigo arduino
+Codigo arduino para el control del teclado matricial por medio de 2 tareas
+Se declaran las librerías y se configura el uso y manejo de pines para los macros
 ```arduino
 //demostración del uso de queues con FreeRTOS
 #include <Arduino_FreeRTOS.h>
@@ -49,7 +51,9 @@ Se importan las siguientes librerías:
 #define WriteOutputPinLow(REG, PIN)  (REG &= ~(1 << PIN))
 #define WriteOutputPinHigh(REG, PIN) (REG |= (1 << PIN))
 #define ToggleOutputPin(REG, PIN)    (REG ^= (1 << PIN))
+```
 
+```arduino
 //declaraciones de la tasa de comunicación serial
 #define F_CPU 16000000UL
 #define USART_BAUDRATE 19200
@@ -137,6 +141,7 @@ void vReceiverTask(void * pvParameters)
     vTaskDelay(pdMS_TO_TICKS(250));
   }
 }
+
 
 //////////funciones de transmisión del UART///////////////
 
