@@ -37,7 +37,9 @@ from PyQt5.QtCore import *
 
 import taskQCorePython
 import modelsPyQt5
-
+```
+Se crea la clase de la interfaz(Ui_MainWindow), se definien algunos estados de las funciones y se definen algunas detalles como lo son el tamaño de la interfaz gráfica
+```PY
 class Ui_MainWindow(object):
 
     def init(self):
@@ -64,7 +66,9 @@ class Ui_MainWindow(object):
         QtCore.QTimer.singleShot(3000, self.window_1)
         app.exec_()
         exit()
-
+```
+Se crean la primera ventana de inicio en donde se carga una imagen para poder dar la bienvenida a la aplicación 
+```Py
     def window_0(self):
         self.widgets_0 = QtWidgets.QWidget(self.MainWindow)
 
@@ -77,7 +81,10 @@ class Ui_MainWindow(object):
         self.back.setPixmap(QtGui.QPixmap("data/casette.png"))
 
         self.MainWindow.setCentralWidget(self.widgets_0)
-
+```
+Se crea la segunda ventana del reproductor de música en donde se muestran los botones de pause, play, next previous, rewind y shuffle, tambien se muestran datos de la cancion como lo son el nombre, tiempo de duración, autor de la canción album, etc.
+A su vez se asignan las acciones de cada boton correspóndiendo al icono con el que este cuenta
+```Py
     def window_1(self):
         widgets_1 = QtWidgets.QWidget(self.MainWindow)
         self.widthScaled = 400
@@ -204,6 +211,9 @@ class Ui_MainWindow(object):
         self.loopSong = not self.loopSong
         self.loop()
 
+```
+Dentro de la siguiente funcion al igual que la anterior se crea la segunda ventana la cual cuenta con funcionalidades parecidas sin embargo se le agrega la funcionalidad de poder descargar canciones directamente desde internet en timpo real y se puede observar en forma de lista todos los elementos con los que cuenta el reproductor mp3
+```Py
     def window_2(self):
         widgets_2 = QtWidgets.QWidget(self.MainWindow)
         self.widthScaled = 100
@@ -360,8 +370,9 @@ class Ui_MainWindow(object):
         self.MainWindow.setCentralWidget(widgets_2)
         self.loopSong = not self.loopSong
         self.loop()
-
-
+```
+Las siguientes funciones se encargan de la lectura del teclado matricial así como de la comprobación de los datos enviados y realizar las acciones que cada boton cuenta para poder manipularlo directamente desde el arduino a la raspberry
+```Py
     def keybordInstruction(self, ins):
         ({
                         "A" : lambda _: self.playPause(),
@@ -392,7 +403,9 @@ class Ui_MainWindow(object):
         self.thread_key.finished.connect(self.thread_key.deleteLater)
 
         self.thread_key.start()
-
+```
+Esta funcion es la encargada de poder descargar directamente desde youtube las canciones, siendo que esta guarda los datos como lo son artista, album, duración, etc. Por otra parte tambien se encarga de descargar la imagen en la mejor calidad posible para posteriormente poder mostrarla en la interfaz
+```Py
     def download(self):
         if self.download_in.text() == "":
             return
@@ -414,7 +427,9 @@ class Ui_MainWindow(object):
         self.thread.start()
         self.thread.finished.connect(self.refreshDataSheet)
         self.thread.finished.connect(self.endDownload)
-
+```
+Esta función se encarga de controlar las acciones que indicamos al programa desde telegram, ya que con este podemos realizar acciones como lo son pausar la musica, siguiente, anterior, seleccionar la canción o ponerla en loop
+```Py
     def telegramInterpreter(self, opt):
         ({
             "Next": lambda _ : self.nextSong(),
@@ -425,7 +440,9 @@ class Ui_MainWindow(object):
             "Loop": lambda _ : self.loop(),
             "Shuf": lambda _ : self.shuffle()
         }[opt[0:4]])(int(opt[4:]))
-
+```
+Gracias a esta función podemos ver la información de las canciones en la Oled
+```Py
     def oledShow(self):
         try:
             self.disp.killer = True
@@ -433,7 +450,9 @@ class Ui_MainWindow(object):
             pass
         self.disp = taskQCorePython.oledControl()
         self.disp.song(self.songs[self.selected])
-
+```
+Se comprueba que las canciones se hayan descargado correctamente para posteriormente enviarla a una base de datos para su almacenamiento tanto de la multimedia como de la información de la canción
+```Py
 
     def endDownload(self):
         try:
@@ -457,7 +476,9 @@ class Ui_MainWindow(object):
             pass
         if self.timestampSong >= self.maxSongDuration:
             self.endSong()
-
+```
+Se asignan las funcionalidades con las que contarán los botones que se muestran en la interfaz gráfica y las acciones son programadas en las siguientes funciones
+```Py
     def playSong(self):
         self.setPlayer(self.selected)
         self.timestampSong = 0
@@ -730,3 +751,5 @@ Conexión de la oled a la raspberry 3b+ por medio del protocolo i2c
 https://youtu.be/2BXIbfJhkOk
 
 ## Conclusiones
+Este reto fue algo que nos impulso a dar más de nosotros mismos implementando cosas que no se marcaban como tal dentro del reto haciendo que este contara con un valor agregado y así poder mejorar la funcionalidad con la que cuenta nuestro reproductor.
+A su vez pudimos implementar las diferentes tecnologías que vimos a lo largo del semestre y pudimos desarrollar más cosas de las esperadas resultando en un proyecto con un punto de vista muy fresco e inovador.
