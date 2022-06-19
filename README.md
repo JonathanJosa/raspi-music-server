@@ -737,7 +737,7 @@ void loop() {
 
 ## Ejecución de código
 ```sh
-python3 Radio_Tape.py
+python3 Radio_Tape_Project.py
 ```
 # Conexiones
 Conexión del teclado matricial al arduino uno por medio del puerto b y d
